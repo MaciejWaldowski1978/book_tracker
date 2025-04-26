@@ -1,5 +1,24 @@
-.env
-venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Django stuff
 db.sqlite3
+/media/
+staticfiles/
+
+# Environment variables
+.env
+
+# MacOS system files
+.DS_Store
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log
