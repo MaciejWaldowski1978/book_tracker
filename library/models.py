@@ -23,7 +23,8 @@ class Book(models.Model):
     description = models.TextField()
     cover = models.ImageField(upload_to='covers/', null=True, blank=True)
     authors = models.ManyToManyField(Author)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ManyToManyField(Category)
+    # category = models.ForeignKey(Category, on_delete=models.CASCADE) # many to many
     # user = models.ForeignKey(User, on_delete=models.CASCADE) # jak chcesz zaby sie ksiazki uzuwaly jak usuniesz uzytkownika
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
