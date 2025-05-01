@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ book.title }}</h1>
+    <p><strong>Opis:</strong> {{ book.description }}</p>
+
+    {% if book.cover %}
+        <img src="{{ book.cover.url }}" alt="Okładka książki" style="max-width:200px;">
+    {% endif %}
+
+    <p><strong>Autorzy:</strong>
+        {% for author in book.authors.all %}
+            {{ author.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+
+    <p><strong>Kategorie:</strong>
+        {% for category in book.categories.all %}
+            {{ category.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+
+    <h2>Rozdziały:</h2>
+    <ul>
+        {% for chapter in chapters %}
+            <li><strong>{{ chapter.title }}</strong><br>{{ chapter.content|truncatechars:100 }}</li>
+        {% empty %}
+            <li>Brak rozdziałów</li>
+        {% endfor %}
+    </ul>
+<!-- if abu wlasciciel mogl usunac ksiazke..-->
+{% if user == book.user %}
+  <p><a href="{% url 'book_edit' book.pk %}">✏️ Edytuj</a> |
+     <a href="{% url 'book_delete' book.pk %}">🗑️ Usuń</a></p>
+{% endif %}
+
+    <p><a href="{% url 'book_list' %}">← Wróć do listy książek</a></p>
+{% endblock %}

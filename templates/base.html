@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Book Tracker{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; }
+        header, footer { margin-bottom: 2em; }
+        header a { margin-right: 1em; }
+        img { border: 1px solid #ccc; padding: 5px; background: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><a href="{% url 'book_list' %}">📚 Book Tracker</a></h1>
+
+        {% if user.is_authenticated %}
+            <p>Witaj, {{ user.username }} |
+                <a href="{% url 'logout' %}">Wyloguj</a> |
+                <a href="{% url 'password_change' %}">Zmień hasło</a> |
+                <a href="{% url 'book_add' %}">Dodaj książkę</a> |
+                <a href="{% url 'user_profile' %}">Moje ulubione</a>
+            </p>
+        {% else %}
+            <p>
+                <a href="{% url 'login' %}">Zaloguj</a> |
+                <a href="{% url 'register' %}">Zarejestruj się</a>
+                <a href="{% url 'password_reset' %}">Nie pamiętasz hasła?</a>
+            </p>
+        {% endif %}
+
+        <!--            wyszukiwarka w hederze-->
+            <form method="GET" action="{% url 'book_search' %}">
+            <input type="text" name="q" placeholder="Szukaj..." style="margin-top: 10px;">
+            <button type="submit">🔍</button>
+            </form>
+
+        <hr>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; {{ now|date:"Y" }} Book Tracker by Maciej Waldowski</p>
+    </footer>
+</body>
+</html>
+
+

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {% if editing %}Edytuj książkę{% else %}Dodaj książkę{% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1>{% if editing %}Edytuj książkę{% else %}Dodaj książkę{% endif %}</h1>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if editing %}Zapisz zmiany{% else %}Dodaj książkę{% endif %}</button>
+  </form>
+  <a href="{% url 'book_list' %}">← Powrót do listy</a>
+{% endblock %}

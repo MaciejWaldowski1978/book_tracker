@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Mój profil{% endblock %}
+
+{% block content %}
+  <h1>Witaj, {{ user.username }}</h1>
+  <h2>Twoje ulubione książki:</h2>
+
+  <ul>
+    {% for fav in favorites %}
+      <li>{{ fav.book.title }} ({{ fav.book.category.name }})</li>
+    {% empty %}
+      <li>Nie masz jeszcze ulubionych książek.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
