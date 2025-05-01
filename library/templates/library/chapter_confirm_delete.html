@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuń rozdział{% endblock %}
+
+{% block content %}
+  <h1>Czy na pewno chcesz usunąć ten rozdział?</h1>
+  <p><strong>{{ chapter.title }}</strong></p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit">🗑️ Usuń</button>
+    <a href="{% url 'book_detail' chapter.book.id %}">Anuluj</a>
+  </form>
+{% endblock %}

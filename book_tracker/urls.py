@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
 from django.urls import path, include
-from library.views import logout_view # bo nie dziala ten z registration djangowy
+from library.views import logout_view, book_add, book_edit, add_chapter
+from library import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,4 +45,10 @@ urlpatterns = [
     path('accounts/reset/done/',
          auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'),
          name='password_reset_complete'),
+
+    path('books/add/', book_add, name='book_add'),
+    path('books/<int:book_id>/edit/', book_edit, name='book_edit'),
+    path('books/<int:book_id>/add-chapter/', add_chapter, name='add_chapter'),
+    path('chapters/<int:pk>/edit/', views.edit_chapter, name='edit_chapter'),
+    path('chapters/<int:pk>/delete/', views.delete_chapter, name='delete_chapter'),
 ]

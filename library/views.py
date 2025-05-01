@@ -3,8 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Book, FavoriteBooks
-from .forms import BookForm, RegisterForm
+from .models import Book, FavoriteBooks, Chapter
+from .forms import BookForm, RegisterForm, ChapterForm
 
 # view lista książek
 def book_list(request):
@@ -76,6 +76,7 @@ def book_search(request):
     if query:
         results = Book.objects.filter(
             Q(title__icontains=query) |
+            Q(description__icontains=query) |
             Q(authors__name__icontains=query)
         ).distinct() # to jest po to aby szukac po tytule i po autorze w jednym polu
 
@@ -127,3 +128,74 @@ def register(request):
 def logout_view(request):
     logout(request)
     return render(request, 'registration/logout.html')
+
+
+# dodawanie ksiazki
+@login_required
+def book_add(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save(commit=False)
+            book.user = request.user  # tylko dla zalogowanych
+            book.save()
+            form.save_m2m()  # dla ManyToMany: authors
+            return redirect('book_list')
+    else:
+        form = BookForm()
+    return render(request, 'library/book_form.html', {'form': form})
+
+
+# edycja ksiazki np rozdzialy
+@login_required
+def book_edit(request, book_id):
+    book = get_object_or_404(Book, id=book_id, user=request.user)  # tylko właściciel może edytować
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'library/book_form.html', {
+        'form': form,
+        'editing': True
+    })
+
+
+# dodawanie rozdzialow
+@login_required
+def add_chapter(request, book_id):
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    if request.method == 'POST':
+        form = ChapterForm(request.POST)
+        if form.is_valid():
+            chapter = form.save(commit=False)
+            chapter.book = book
+            chapter.save()
+            return redirect('book_detail', book.id)
+    else:
+        form = ChapterForm()
+    return render(request, 'library/chapter_form.html', {'form': form, 'book': book})
+
+# Edycja rozdziału  dla autora
+def edit_chapter(request, pk):
+    chapter = get_object_or_404(Chapter, pk=pk)
+    if request.method == 'POST':
+        form = ChapterForm(request.POST, instance=chapter)
+        if form.is_valid():
+            form.save()
+            return redirect('book_detail', pk=chapter.book.id)
+    else:
+        form = ChapterForm(instance=chapter)
+    return render(request, 'library/chapter_form.html', {'form': form, 'book': chapter.book})
+
+# Usuwanie rozdziału przez tego samego autora
+def delete_chapter(request, pk):
+    chapter = get_object_or_404(Chapter, pk=pk)
+    if request.method == 'POST':
+        book_id = chapter.book.id
+        chapter.delete()
+        return redirect('book_detail', pk=book_id)
+    return render(request, 'library/chapter_confirm_delete.html', {'chapter': chapter})
+

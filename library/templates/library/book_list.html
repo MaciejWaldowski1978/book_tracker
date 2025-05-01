@@ -4,16 +4,33 @@
 
 {% block content %}
   <h1>Lista książek</h1>
-  <ul>
+  <table style="border-collapse: collapse;">
     {% for book in books %}
-      <li>{{ book.title }} -
-          {% for category in book.categories.all %}
-            {{ category.name }}{% if not forloop.last %}, {% endif %}
-          {% endfor %}
-      </li>
-    {% empty %}
-      <li>Brak książek do wyświetlenia.</li>
-    {% endfor %}
-  </ul>
-{% endblock %}
+      <tr style="vertical-align: top; padding-bottom: 20px;">
+        <!-- Kolumna 1: książka -->
+        <td style="padding-right: 20px;">
+          <strong>{{ book.title }}</strong><br>
+          <small>
+            <em>Dodana przez: {{ book.user.username }}</em><br>
+            Kategorie:
+            {% for category in book.category.all %}
+              {{ category.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </small>
+        </td>
 
+        <!-- Kolumna 2: linki -->
+        <td>
+          <small>
+            <a href="{% url 'book_detail' book.id %}">📖 Szczegóły</a><br>
+            <a href="{% url 'add_chapter' book.id %}">➕ Dodaj rozdział</a>
+          </small>
+        </td>
+      </tr>
+      <!-- Dodatkowy pusty wiersz jako odstęp -->
+      <tr><td colspan="2" style="height: 20px;"></td></tr>
+    {% empty %}
+      <tr><td colspan="2">Brak książek do wyświetlenia.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}
