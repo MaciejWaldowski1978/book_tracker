@@ -20,6 +20,9 @@ from django.urls import path, include
 from library.views import logout_view, book_add, book_edit, add_chapter
 from library import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('library.urls')),
@@ -51,4 +54,8 @@ urlpatterns = [
     path('books/<int:book_id>/add-chapter/', add_chapter, name='add_chapter'),
     path('chapters/<int:pk>/edit/', views.edit_chapter, name='edit_chapter'),
     path('chapters/<int:pk>/delete/', views.delete_chapter, name='delete_chapter'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,10 +6,29 @@
 
 {% block content %}
   <h1>{% if editing %}Edytuj książkę{% else %}Dodaj książkę{% endif %}</h1>
+
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <p>{{ form.title.label_tag }}<br>{{ form.title }}</p>
+    <p>{{ form.description.label_tag }}<br>{{ form.description }}</p>
+    <p>{{ form.cover.label_tag }}<br>{{ form.cover }}</p>
+
+    <p>
+      {{ form.authors.label_tag }}<br>{{ form.authors }}<br>
+<!--      <a href="{% url 'admin:library_author_add' %}" target="_blank">➕ Dodaj nowego autora</a>-->
+      <a href="{% url 'add_author' %}" target="_blank">➕ Dodaj nowego autora</a>
+    </p>
+
+    <p>
+      {{ form.category.label_tag }}<br>{{ form.category }}<br>
+      <a href="{% url 'admin:library_category_add' %}" target="_blank">➕ Dodaj nową kategorię</a>
+    </p>
+
     <button type="submit">{% if editing %}Zapisz zmiany{% else %}Dodaj książkę{% endif %}</button>
   </form>
+  <p></p>
   <a href="{% url 'book_list' %}">← Powrót do listy</a>
 {% endblock %}
+
+

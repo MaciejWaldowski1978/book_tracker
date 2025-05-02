@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Dodaj autora{% endblock %}
+
+{% block content %}
+  <h1>Dodaj nowego autora</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Zapisz</button>
+  </form>
+
+  <p><a href="{% url 'book_add' %}">← Powrót do książki</a></p>
+{% endblock %}

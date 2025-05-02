@@ -4,7 +4,9 @@ from django.contrib.auth import login, logout
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Book, FavoriteBooks, Chapter
-from .forms import BookForm, RegisterForm, ChapterForm
+from .forms import BookForm, RegisterForm, ChapterForm, AuthorForm
+
+
 
 # view lista książek
 def book_list(request):
@@ -77,7 +79,9 @@ def book_search(request):
         results = Book.objects.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query) |
-            Q(authors__name__icontains=query)
+            Q(authors__name__icontains=query)|
+            Q(chapters__title__icontains=query) |
+            Q(chapters__content__icontains=query)
         ).distinct() # to jest po to aby szukac po tytule i po autorze w jednym polu
 
     return render(request, 'library/book_search.html', {'results': results, 'query': query})
@@ -199,3 +203,14 @@ def delete_chapter(request, pk):
         return redirect('book_detail', pk=book_id)
     return render(request, 'library/chapter_confirm_delete.html', {'chapter': chapter})
 
+# dodawania autora
+@login_required
+def add_author(request):
+    if request.method == 'POST':
+        form = AuthorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('book_add')  # wraca do formularza książki
+    else:
+        form = AuthorForm()
+    return render(request, 'library/add_author.html', {'form': form})
