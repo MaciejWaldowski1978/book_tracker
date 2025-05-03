@@ -2,6 +2,8 @@
 {% block title %}Moje ulubione{% endblock %}
 
 {% block content %}
+  <p></p>
+  <p><a href="{% url 'book_list' %}">← Powrót do listy książek</a></p>
   <h1>Moje ulubione książki</h1>
   <ul>
     {% for fav in favorites %}
@@ -13,5 +15,7 @@
       <li>Nie masz jeszcze ulubionych książek.</li>
     {% endfor %}
   </ul>
-  <a href="{% url 'book_list' %}">← Powrót do listy książek</a>
+
+<p></p>
+  <p><a href="{% url 'book_list' %}">← Powrót do listy książek_moje ulubione</a></p>
 {% endblock %}

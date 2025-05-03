@@ -13,6 +13,12 @@ class BookForm(forms.ModelForm):
             'category': forms.SelectMultiple(attrs={'size': 7}),  # jeśli ManyToMany
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Sortowanie alfabetyczne
+        self.fields['authors'].queryset = self.fields['authors'].queryset.order_by('name')
+        self.fields['category'].queryset = self.fields['category'].queryset.order_by('name')
+
 # formularz rejestracyjn
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)

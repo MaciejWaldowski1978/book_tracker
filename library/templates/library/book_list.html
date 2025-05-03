@@ -9,7 +9,8 @@
 <!--  <a href="{% url 'book_list' %}?mine=true" {% if show_mine %}style="font-weight:bold;"{% endif %}>Moje książki</a>-->
 <!--</div>-->
 
-
+  <p></p>
+  <p><a href="{% url 'book_list' %}">← Powrót do listy książek</a></p>
   <h1>Lista książek</h1>
   <table style="border-collapse: collapse;">
     {% for book in books %}
@@ -39,6 +40,9 @@
     {% empty %}
       <tr><td colspan="2">Brak książek do wyświetlenia.</td></tr>
     {% endfor %}
+
   </table>
+<p></p>
+  <p><a href="{% url 'book_list' %}">← Powrót do listy książek_m i w</a></p>
 {% endblock %}
 

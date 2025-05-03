@@ -26,8 +26,10 @@
 
     <p>
       {{ form.authors.label_tag }}<br>{{ form.authors }}<br>
-<!--      <a href="{% url 'admin:library_author_add' %}" target="_blank">➕ Dodaj nowego autora</a>-->
-      <a href="{% url 'add_author' %}" target="_blank">➕ Dodaj nowego autora</a>
+
+      <a href="{% url 'add_author' %}" target="_blank">➕ Dodaj nowego autora</a><br>
+      <a href="{% url 'book_add' %}">🔄 Odśwież autorów</a>
+
     </p>
 
     <p>
@@ -38,7 +40,14 @@
     <button type="submit">{% if editing %}Zapisz zmiany{% else %}Dodaj książkę{% endif %}</button>
   </form>
   <p></p>
-  <a href="{% url 'book_list' %}">← Powrót do listy</a>
+<!--  <a href="{% url 'book_list' %}">← Powrót do listy</a>-->
+<!--  {% if show_back_link %}-->
+<!--    <a href="{% url 'book_list' %}">← Powrót do listy___!</a>-->
+<!--  {% endif %}-->
+  {% if show_back_link|default:True %}
+    <a href="{% url 'book_list' %}">← Powrót do listy</a>
+  {% endif %}
+
 {% endblock %}
 
 

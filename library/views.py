@@ -2,63 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Book, FavoriteBooks, Chapter
 from .forms import BookForm, RegisterForm, ChapterForm, AuthorForm
+from django.utils.http import url_has_allowed_host_and_scheme
+# from django.conf import settings
 
-
-
-# # ==== lista ksiazek === rozwiazanie PIERWOTNE => wszystkie ksiazki widoczne dla wszystkich
-# # inne wyswietlenie w zaleznosci od tego czy jestes zalogowany czy nie.. ksiazki wszystkie posortowane alfabetycznie
-# def book_list(request):
-#     # books = Book.objects.all() # jak nie che aby sie sortowaly tylk owyswietlaly wg kolejnosci dodania lub modyfikacji
-#     books = Book.objects.all().order_by('title') # beda sie sortowaly alfabetycznie wg tytulu..
-#     return render(request, 'library/book_list.html', {'books': books})
-#
-
-# # ==== lista ksiazek === rozwiazanie DRUGIE widoczne tylko moje ksiazki jak zalogowany i wszystkie ksiazki jak nie zalogowany
-# # inne wyswietlenie w zaleznosci od tego czy jestes zalogowany czy nie..ksiazki wg dodanych
-# def book_list(request):
-#     if request.user.is_authenticated:
-#         books = Book.objects.filter(user=request.user).order_by('-id')  # ostatnio dodane przez ta sam osobe
-#     else:
-#         books = Book.objects.all().order_by('title')  # alfabetycznie dla niezalogowanych
-#
-#     return render(request, 'library/book_list.html', {'books': books})
-
-
-# ==== lista ksiazek === rozwiazanie TRZECIE => wszystkie ksiazki widoczne dla wszystkich alfabetycznie posortowane
-# i moje na gorze wg dodanych/zmodyfikowanych a reszta pozniej.. bez oddzielenie ich ...
-
-# from itertools import chain
-#
-# def book_list(request):
-#     if request.user.is_authenticated:
-#         user_books = Book.objects.filter(user=request.user)
-#         other_books = Book.objects.exclude(user=request.user)
-#         books = list(chain(user_books.order_by('-id'), other_books.order_by('title')))
-#     else:
-#         books = Book.objects.all().order_by('title')
-#
-#     return render(request, 'library/book_list.html', {'books': books})
-
-
-# # # # ==== lista ksiazek === rozwiazanie CZWARTE => ksiazki wyswietlaja sie w zaleznosci od tego czy maja byc twoje czy wszystkie
-# # ---NIE DZIALA ??
-# def book_list(request):
-#     view = request.GET.get('view', 'all')  # domyślnie 'all'
-#     if request.user.is_authenticated and view == 'mine':
-#         books = Book.objects.filter(user=request.user).order_by('-id')
-#     else:
-#         if request.user.is_authenticated:
-#             books = Book.objects.exclude(user=request.user).order_by('title')
-#         else:
-#             books = Book.objects.all().order_by('title')
-#
-#     return render(request, 'library/book_list.html', {'books': books})
-
-
-# rozwiazanie ostateczne .. i super dziala
+# === rozwiazanie ostateczne .. i super dziala ===
 def book_list(request):
     if request.user.is_authenticated and request.GET.get('mine') == 'true':
         books = Book.objects.filter(user=request.user).order_by('-id')
@@ -103,7 +54,7 @@ def book_add(request):
                 if set(book.authors.all()) == set(authors):
                     form.add_error(None, 'Taka książka już istnieje w Twojej bibliotece.')
                     return render(request, 'library/book_form.html', {'form': form})
-
+                    # return render(request, 'library/book_form.html', {'form': form, 'show_back_link': False})
             # zapisanie ksiazki..
             book = form.save(commit=False)
             book.user = request.user  # tylko dla zalogowanych
@@ -113,9 +64,10 @@ def book_add(request):
     else:
         form = BookForm()
     return render(request, 'library/book_form.html', {'form': form})
+    # return render(request, 'library/book_form.html', {'form': form, 'show_back_link': False})
 
 
-# edycja ksiazki np rozdzialy
+# === edycja ksiazki np rozdzialy ===
 @login_required
 def book_edit(request, book_id):
     book = get_object_or_404(Book, id=book_id, user=request.user)  # tylko właściciel może edytować
@@ -126,43 +78,9 @@ def book_edit(request, book_id):
             return redirect('book_list')
     else:
         form = BookForm(instance=book)
-    return render(request, 'library/book_form.html', {
-        'form': form,
-        'editing': True
-    })
+    return render(request, 'library/book_form.html', {'form': form,'editing': True})
+    # return render(request, 'library/book_form.html', {'form': form, 'editing': True, 'show_back_link': True})
 
-# # ==== edycja dodanej ksiazki ===
-# @login_required
-# def book_edit(request, pk):
-#     book = get_object_or_404(Book, pk=pk)
-#
-#     if request.user != book.user:
-#         return redirect('book_detail', pk=book.pk)  # tylko autor moze to edytowac
-#
-#     if request.method == 'POST':
-#         form = BookForm(request.POST, request.FILES, instance=book)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('book_detail', pk=book.pk)
-#     else:
-#         form = BookForm(instance=book)
-#
-#     return render(request, 'library/book_form.html', {'form': form, 'editing': True})
-
-# # ==== dodawanie ksiazek ===
-# @login_required
-# def book_create(request):
-#     if request.method == 'POST':
-#         form = BookForm(request.POST, request.FILES)  # pierwsza strona
-#         if form.is_valid():
-#             book = form.save(commit=False)
-#             book.user = request.user  # zalogowany user
-#             book.save()
-#             form.save_m2m()  # zapisz relacje wiele-do-wielu (autorzy, kategorie)
-#             return redirect('book_detail', pk=book.pk)
-#     else:
-#         form = BookForm()
-#     return render(request, 'library/book_form.html', {'form': form})
 
 # ==== usuwanie ksiazki ===
 @login_required
@@ -212,42 +130,23 @@ def register(request):
 # ==== profil ulubionych ksiazek ===
 @login_required
 def user_profile(request):
-    favorites = FavoriteBooks.objects.filter(user=request.user)
+    favorites = FavoriteBooks.objects.filter(user=request.user).order_by('book__title')
     return render(request, 'library/user_profile.html', {'favorites': favorites})
 
-# @login_required
-# def user_profile(request):
-#     favorites = FavoriteBooks.objects.filter(user=request.user)
-#     return render(request, 'library/user_profile.html', {'favorites': favorites})
 
-
-# # ==== rejestracja uzytkownika ===
-# def register(request):
-#     if request.method == 'POST':
-#         form = RegisterForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)  # 🔐 automatyczne logowanie
-#             return redirect('book_list')  # zmień na inny widok jeśli chcesz
-#     else:
-#         form = RegisterForm()
-#     return render(request, 'registration/register.html', {'form': form})
-
-
-# # wlasny logout bo ten w registration nie dziala
+# # wlasny loyout bo ten w registration nie dziala
 # def logout_view(request):
 #     logout(request)
 #     return redirect('login')
+
 
 # ==== wylogowanie uzytkownika ===
 def logout_view(request):
     logout(request)
     return render(request, 'registration/logout.html')
 
-#--------------------------------------------------
 
-
-# dodawanie rozdzialow
+# === dodawanie rozdzialow ===
 @login_required
 def add_chapter(request, book_id):
 
@@ -269,7 +168,7 @@ def add_chapter(request, book_id):
         form = ChapterForm()
     return render(request, 'library/chapter_form.html', {'form': form, 'book': book})
 
-# Edycja rozdziału  dla autora
+# === Edycja rozdziału  dla autora ===
 def edit_chapter(request, pk):
     chapter = get_object_or_404(Chapter, pk=pk)
     if request.method == 'POST':
@@ -281,7 +180,7 @@ def edit_chapter(request, pk):
         form = ChapterForm(instance=chapter)
     return render(request, 'library/chapter_form.html', {'form': form, 'book': chapter.book})
 
-# Usuwanie rozdziału przez tego samego autora
+# === Usuwanie rozdziału przez tego samego autora ===
 def delete_chapter(request, pk):
     chapter = get_object_or_404(Chapter, pk=pk)
     if request.method == 'POST':
@@ -290,20 +189,20 @@ def delete_chapter(request, pk):
         return redirect('book_detail', pk=book_id)
     return render(request, 'library/chapter_confirm_delete.html', {'chapter': chapter})
 
-# dodawania autora
+
+# === dodawania autora ===
 @login_required
 def add_author(request):
     if request.method == 'POST':
         form = AuthorForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('book_add')  # wraca do formularza książki
+            return HttpResponse('<script>window.close();</script>')  # zamyka popup po dodaniu
     else:
         form = AuthorForm()
     return render(request, 'library/add_author.html', {'form': form})
 
-
-# dodaj do ulubionych
+# === dodaj do ulubionych ===
 @login_required
 def add_to_favorites(request, book_id):
     book = get_object_or_404(Book, id=book_id)
@@ -311,7 +210,7 @@ def add_to_favorites(request, book_id):
     return redirect('book_detail', pk=book.id)
 
 
-# usun z ulubionych
+# === usun z ulubionych ===
 @login_required
 def remove_from_favorites(request, book_id):
     book = get_object_or_404(Book, id=book_id)
