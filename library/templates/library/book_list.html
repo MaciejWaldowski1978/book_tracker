@@ -3,6 +3,13 @@
 {% block title %}Lista książek{% endblock %}
 
 {% block content %}
+
+<!--<div style="margin-bottom: 20px;">-->
+<!--  <a href="{% url 'book_list' %}" {% if not show_mine %}style="font-weight:bold;"{% endif %}>Wszystkie książki</a> |-->
+<!--  <a href="{% url 'book_list' %}?mine=true" {% if show_mine %}style="font-weight:bold;"{% endif %}>Moje książki</a>-->
+<!--</div>-->
+
+
   <h1>Lista książek</h1>
   <table style="border-collapse: collapse;">
     {% for book in books %}
@@ -34,3 +41,4 @@
     {% endfor %}
   </table>
 {% endblock %}
+

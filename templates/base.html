@@ -17,16 +17,19 @@
 
         {% if user.is_authenticated %}
             <p>Witaj, {{ user.username }} |
-                <a href="{% url 'logout' %}">Wyloguj</a> |
-                <a href="{% url 'password_change' %}">Zmień hasło</a> |
-                <a href="{% url 'book_add' %}">Dodaj książkę</a> |
-                <a href="{% url 'user_profile' %}">Moje ulubione</a>
+                <a href="{% url 'logout' %}">🔓 Wyloguj</a> |
+                <a href="{% url 'password_change' %}">🔑 Zmień hasło</a> |
+                <a href="{% url 'book_add' %}">📖 Dodaj książkę</a>
+                <a>👉</a>
+                <a href="{% url 'book_list' %}">📚 Wszystkie książki</a> |
+                <a href="{% url 'book_list' %}?mine=true">📘 Moje książki</a>|
+                <a href="{% url 'user_profile' %}">❤️ Moje ulubione</a>
             </p>
         {% else %}
             <p>
-                <a href="{% url 'login' %}">Zaloguj</a> |
-                <a href="{% url 'register' %}">Zarejestruj się</a>
-                <a href="{% url 'password_reset' %}">Nie pamiętasz hasła?</a>
+                <a href="{% url 'login' %}">🔐 Zaloguj</a> |
+                <a href="{% url 'register' %}">📝 Zarejestruj się</a>
+                <a href="{% url 'password_reset' %}">❓ Nie pamiętasz hasła?</a>
             </p>
         {% endif %}
 

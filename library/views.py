@@ -8,10 +8,69 @@ from .forms import BookForm, RegisterForm, ChapterForm, AuthorForm
 
 
 
-# ==== lista ksiazek ===
+# # ==== lista ksiazek === rozwiazanie PIERWOTNE => wszystkie ksiazki widoczne dla wszystkich
+# # inne wyswietlenie w zaleznosci od tego czy jestes zalogowany czy nie.. ksiazki wszystkie posortowane alfabetycznie
+# def book_list(request):
+#     # books = Book.objects.all() # jak nie che aby sie sortowaly tylk owyswietlaly wg kolejnosci dodania lub modyfikacji
+#     books = Book.objects.all().order_by('title') # beda sie sortowaly alfabetycznie wg tytulu..
+#     return render(request, 'library/book_list.html', {'books': books})
+#
+
+# # ==== lista ksiazek === rozwiazanie DRUGIE widoczne tylko moje ksiazki jak zalogowany i wszystkie ksiazki jak nie zalogowany
+# # inne wyswietlenie w zaleznosci od tego czy jestes zalogowany czy nie..ksiazki wg dodanych
+# def book_list(request):
+#     if request.user.is_authenticated:
+#         books = Book.objects.filter(user=request.user).order_by('-id')  # ostatnio dodane przez ta sam osobe
+#     else:
+#         books = Book.objects.all().order_by('title')  # alfabetycznie dla niezalogowanych
+#
+#     return render(request, 'library/book_list.html', {'books': books})
+
+
+# ==== lista ksiazek === rozwiazanie TRZECIE => wszystkie ksiazki widoczne dla wszystkich alfabetycznie posortowane
+# i moje na gorze wg dodanych/zmodyfikowanych a reszta pozniej.. bez oddzielenie ich ...
+
+# from itertools import chain
+#
+# def book_list(request):
+#     if request.user.is_authenticated:
+#         user_books = Book.objects.filter(user=request.user)
+#         other_books = Book.objects.exclude(user=request.user)
+#         books = list(chain(user_books.order_by('-id'), other_books.order_by('title')))
+#     else:
+#         books = Book.objects.all().order_by('title')
+#
+#     return render(request, 'library/book_list.html', {'books': books})
+
+
+# # # # ==== lista ksiazek === rozwiazanie CZWARTE => ksiazki wyswietlaja sie w zaleznosci od tego czy maja byc twoje czy wszystkie
+# # ---NIE DZIALA ??
+# def book_list(request):
+#     view = request.GET.get('view', 'all')  # domyślnie 'all'
+#     if request.user.is_authenticated and view == 'mine':
+#         books = Book.objects.filter(user=request.user).order_by('-id')
+#     else:
+#         if request.user.is_authenticated:
+#             books = Book.objects.exclude(user=request.user).order_by('title')
+#         else:
+#             books = Book.objects.all().order_by('title')
+#
+#     return render(request, 'library/book_list.html', {'books': books})
+
+
+# rozwiazanie ostateczne .. i super dziala
 def book_list(request):
-    books = Book.objects.all()
-    return render(request, 'library/book_list.html', {'books': books})
+    if request.user.is_authenticated and request.GET.get('mine') == 'true':
+        books = Book.objects.filter(user=request.user).order_by('-id')
+        show_mine = True
+    else:
+        books = Book.objects.all().order_by('title')
+        show_mine = False
+
+    return render(request, 'library/book_list.html', {
+        'books': books,
+        'show_mine': show_mine
+    })
 
 
 # ==== detale ksiazki ===
