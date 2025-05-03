@@ -11,6 +11,15 @@
     <img src="{{ book.cover.url }}" alt="Okładka książki" style="max-width:200px;">
   {% endif %}
 
+  {% if user.is_authenticated %}
+  {% if is_favorite %}
+    <a href="{% url 'remove_from_favorites' book.id %}">❤️ Usuń z ulubionych</a>
+  {% else %}
+    <a href="{% url 'add_to_favorites' book.id %}">🤍 Dodaj do ulubionych</a>
+  {% endif %}
+  {% endif %}
+
+
   <p><strong>Autorzy:</strong>
     {% for author in book.authors.all %}
       {{ author.name }}{% if not forloop.last %}, {% endif %}

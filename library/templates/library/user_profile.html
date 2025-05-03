@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
-
-{% block title %}Mój profil{% endblock %}
+{% block title %}Moje ulubione{% endblock %}
 
 {% block content %}
-  <h1>Witaj, {{ user.username }}</h1>
-  <h2>Twoje ulubione książki:</h2>
-
+  <h1>Moje ulubione książki</h1>
   <ul>
     {% for fav in favorites %}
-      <li>{{ fav.book.title }} ({{ fav.book.category.name }})</li>
+      <li>
+        <a href="{% url 'book_detail' pk=fav.book.pk %}">{{ fav.book.title }}</a>
+        — <a href="{% url 'remove_from_favorites' book_id=fav.book.id %}">🗑️ Usuń z ulubionych</a>
+      </li>
     {% empty %}
       <li>Nie masz jeszcze ulubionych książek.</li>
     {% endfor %}
   </ul>
-<p></p>
-<p><a href="{% url 'book_list' %}">← Wróć do listy książek</a></p>
-
+  <a href="{% url 'book_list' %}">← Powrót do listy książek</a>
 {% endblock %}

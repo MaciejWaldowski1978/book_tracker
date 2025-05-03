@@ -9,6 +9,14 @@
 
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+<!--    sprawdzenie czy juz jest taka ksiazka w bazie -->
+    {% if form.non_field_errors %}
+      <div style="color: red;">
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     <p>{{ form.title.label_tag }}<br>{{ form.title }}</p>
     <p>{{ form.description.label_tag }}<br>{{ form.description }}</p>
