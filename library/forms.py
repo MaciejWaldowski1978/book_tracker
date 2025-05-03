@@ -19,7 +19,7 @@ class BookForm(forms.ModelForm):
         self.fields['authors'].queryset = self.fields['authors'].queryset.order_by('name')
         self.fields['category'].queryset = self.fields['category'].queryset.order_by('name')
 
-# formularz rejestracyjn
+# formularz rejestracyjny
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -27,7 +27,7 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
-#formularz dodawania formularzy do ksiazki
+#formularz dodawania rozdzialow do ksiazki
 class ChapterForm(forms.ModelForm):
     class Meta:
         model = Chapter
