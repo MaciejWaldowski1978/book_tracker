@@ -109,7 +109,7 @@ def book_search(request):
             Q(authors__name__icontains=query)|
             Q(chapters__title__icontains=query) |
             Q(chapters__content__icontains=query)
-        ).distinct() # to jest po to aby szukac po tytule i po autorze w jednym polu
+        ).distinct() # pomijamy powtarzane wyniki aby nie listowac dwa razy tego samego..
 
     return render(request, 'library/book_search.html', {'results': results, 'query': query})
 
@@ -150,8 +150,9 @@ def logout_view(request):
 @login_required
 def add_chapter(request, book_id):
 
-    # sprawdzamy czy użytkownik ma prawo edytowac ksiazke np gdy zostala dodana pzez inna osobe
     book = get_object_or_404(Book, id=book_id)
+    # sprawdzamy czy użytkownik ma prawo edytowac ksiazke np gdy zostala dodana pzez inna osobe
+    # book = get_object_or_404(Book, id=book_id, user=request.user)
     if book.user != request.user:
         return render(request, 'library/access_denied.html', {
             'message': 'Nie możesz dodać rozdziału do książki, której nie jesteś właścicielem.'
@@ -167,6 +168,7 @@ def add_chapter(request, book_id):
     else:
         form = ChapterForm()
     return render(request, 'library/chapter_form.html', {'form': form, 'book': book})
+
 
 # === Edycja rozdziału  dla autora ===
 def edit_chapter(request, pk):
@@ -216,3 +218,9 @@ def remove_from_favorites(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     FavoriteBooks.objects.filter(user=request.user, book=book).delete()
     return redirect('book_detail', pk=book.id)
+
+
+#  zmiana hasla i wylogowanie..
+def password_change_done_and_logout(request):
+    logout(request)
+    return render(request, 'registration/password_change_done.html')
