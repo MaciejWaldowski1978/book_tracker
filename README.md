@@ -17,7 +17,7 @@ Aplikacja webowa do zarządzania własną biblioteką książek specjalistycznyc
 * ✅ Ulubione książki (dodawanie/usuwanie, widok ulubionych)
 * ✅ Wyszukiwarka (po tytule, autorze, opisie, rozdziałach)
 * ✅ Widok "Moje książki" oraz "Wszystkie książki"
-* ✅ Responsywny interfejs (obsługa desktop i mobile)
+* ✅ Responsywny interfejs
 * ✅ System autoryzacji (dostęp tylko do wybranych akcji)
 * ✅ Testy jednostkowe i integracyjne (Pytest)
 
