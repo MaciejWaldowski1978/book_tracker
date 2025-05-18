@@ -1,7 +1,19 @@
 from django.urls import path
 from .views import register
 from . import views
+"""
+Mapowanie adresów URL do widoków aplikacji "library".
 
+Ścieżki obejmują:
+- wyświetlanie listy i szczegółów książek,
+- dodawanie, edycję i usuwanie książek,
+- wyszukiwanie i profil użytkownika,
+- rejestrację użytkownika,
+- dodawanie autorów,
+- zarządzanie ulubionymi książkami (dodawanie i usuwanie).
+
+Widoki zabezpieczone dekoratorem `login_required` są dostępne tylko po zalogowaniu.
+"""
 urlpatterns = [
     path('', views.book_list, name='book_list'),
     path('book/<int:pk>/', views.book_detail, name='book_detail'),

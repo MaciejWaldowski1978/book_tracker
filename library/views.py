@@ -11,6 +11,10 @@ from django.utils.http import url_has_allowed_host_and_scheme
 
 # === rozwiazanie ostateczne .. i super dziala ===
 def book_list(request):
+    """Wyświetla listę książek.
+    Dla zalogowanych użytkowników z parametrem `mine=true` pokazuje tylko ich książki.
+    Dla niezalogowanych lub bez parametru pokazuje wszystkie książki alfabetycznie.
+    """
     if request.user.is_authenticated and request.GET.get('mine') == 'true':
         books = Book.objects.filter(user=request.user).order_by('-id')
         show_mine = True
@@ -26,6 +30,9 @@ def book_list(request):
 
 # ==== detale ksiazki ===
 def book_detail(request, pk):
+    """Widok szczegółów książki i jej rozdziałów.
+    Dla zalogowanych użytkowników pokazuje również status ulubionej książki.
+    """
     book = get_object_or_404(Book, pk=pk)
     chapters = book.chapters.all()  # related_name='chapters' w modelu Chapter
 
@@ -42,6 +49,10 @@ def book_detail(request, pk):
 # ==== dodawanie ksiazki ===
 @login_required
 def book_add(request):
+    """Widok dodawania nowej książki.
+    Dostępny tylko dla zalogowanych użytkowników.
+    Sprawdza duplikaty na podstawie tytułu i autorów.
+    """
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
@@ -70,6 +81,7 @@ def book_add(request):
 # === edycja ksiazki np rozdzialy ===
 @login_required
 def book_edit(request, book_id):
+    """Edycja książki. Dozwolona tylko dla właściciela książki."""
     book = get_object_or_404(Book, id=book_id, user=request.user)  # tylko właściciel może edytować
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
@@ -85,6 +97,7 @@ def book_edit(request, book_id):
 # ==== usuwanie ksiazki ===
 @login_required
 def book_delete(request, pk):
+    """Usuwanie książki. Możliwe tylko przez jej właściciela."""
     book = get_object_or_404(Book, pk=pk)
 
     if request.user != book.user:
@@ -99,6 +112,9 @@ def book_delete(request, pk):
 
 # ==== szukanie ksiazki bez wymaganego logowania ===
 def book_search(request):
+    """Wyszukiwarka książek.
+    Pozwala wyszukiwać po tytule, opisie, autorze i zawartości rozdziału.
+    """
     query = request.GET.get('q') # Q jest po to aby szukac np autora albo tytulu bez uzycia filra i warunkow
     results = []
 
@@ -116,6 +132,9 @@ def book_search(request):
 
 # ==== rejestracja nowego uzytkownika ===
 def register(request):
+    """Rejestracja nowego użytkownika.
+    Po poprawnym utworzeniu konta następuje automatyczne logowanie.
+    """
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -130,18 +149,18 @@ def register(request):
 # ==== profil ulubionych ksiazek ===
 @login_required
 def user_profile(request):
+    """Widok profilu użytkownika z jego ulubionymi książkami."""
     favorites = FavoriteBooks.objects.filter(user=request.user).order_by('book__title')
     return render(request, 'library/user_profile.html', {'favorites': favorites})
-
 
 # # wlasny loyout bo ten w registration nie dziala
 # def logout_view(request):
 #     logout(request)
 #     return redirect('login')
 
-
 # ==== wylogowanie uzytkownika ===
 def logout_view(request):
+    """Wylogowanie użytkownika."""
     logout(request)
     return render(request, 'registration/logout.html')
 
@@ -149,7 +168,9 @@ def logout_view(request):
 # === dodawanie rozdzialow ===
 @login_required
 def add_chapter(request, book_id):
-
+    """Dodawanie rozdziału do książki.
+    Możliwe tylko przez właściciela książki.
+    """
     book = get_object_or_404(Book, id=book_id)
     # sprawdzamy czy użytkownik ma prawo edytowac ksiazke np gdy zostala dodana pzez inna osobe
     # book = get_object_or_404(Book, id=book_id, user=request.user)
@@ -172,6 +193,7 @@ def add_chapter(request, book_id):
 
 # === Edycja rozdziału  dla autora ===
 def edit_chapter(request, pk):
+    """Edycja istniejącego rozdziału książki."""
     chapter = get_object_or_404(Chapter, pk=pk)
     if request.method == 'POST':
         form = ChapterForm(request.POST, instance=chapter)
@@ -184,6 +206,7 @@ def edit_chapter(request, pk):
 
 # === Usuwanie rozdziału przez tego samego autora ===
 def delete_chapter(request, pk):
+    """Usuwanie rozdziału książki przez właściciela."""
     chapter = get_object_or_404(Chapter, pk=pk)
     if request.method == 'POST':
         book_id = chapter.book.id
@@ -195,6 +218,7 @@ def delete_chapter(request, pk):
 # === dodawania autora ===
 @login_required
 def add_author(request):
+    """Dodawanie nowego autora. Otwiera się w osobnym popupie."""
     if request.method == 'POST':
         form = AuthorForm(request.POST)
         if form.is_valid():
@@ -207,6 +231,7 @@ def add_author(request):
 # === dodaj do ulubionych ===
 @login_required
 def add_to_favorites(request, book_id):
+    """Dodaje książkę do ulubionych dla aktualnie zalogowanego użytkownika."""
     book = get_object_or_404(Book, id=book_id)
     FavoriteBooks.objects.get_or_create(user=request.user, book=book)
     return redirect('book_detail', pk=book.id)
@@ -215,6 +240,7 @@ def add_to_favorites(request, book_id):
 # === usun z ulubionych ===
 @login_required
 def remove_from_favorites(request, book_id):
+    """Usuwa książkę z ulubionych użytkownika."""
     book = get_object_or_404(Book, id=book_id)
     FavoriteBooks.objects.filter(user=request.user, book=book).delete()
     return redirect('book_detail', pk=book.id)
@@ -222,5 +248,6 @@ def remove_from_favorites(request, book_id):
 
 #  zmiana hasla i wylogowanie..
 def password_change_done_and_logout(request):
+    """Wylogowuje użytkownika po zmianie hasła i wyświetla potwierdzenie."""
     logout(request)
     return render(request, 'registration/password_change_done.html')
